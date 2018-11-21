@@ -2,11 +2,20 @@
 
 import asyncio
 import logging
+import json
 from juju import loop
 from juju.model import Model
-
 from flask import Flask
+from flask.ext.cors import CORS
+
 app = Flask(__name__)
+cors = CORS(app)
+
+controller_endpoint = '18.206.149.35:17070'
+model_uuid = 'b9b7b55e-37e6-43e3-8d74-f9da485ac695'
+username = 'shyam'
+password = 'shyam'
+cacert = None
 
 async def deploy():
     # Create a Model instance. We need to connect our Model to a Juju api
@@ -14,7 +23,8 @@ async def deploy():
     model = Model()
 
     # Connect to the currently active Juju model
-    await model.connect_current()
+	#await model.connect(controller_endpoint, model_uuid, username, password, cacert,)
+    await model.connect(controller_endpoint, model_uuid, username, password, cacert)
 
     # Deploy a single unit of the ubuntu charm, using revision 0 from the
     # stable channel of the Charm Store.
@@ -51,7 +61,9 @@ def provision():
     try:
         loop.run_until_complete(deploy())
     except:
-        return "Already Installed"
+        return json.dumps("Already Installed")
 
-    return "Deployed"
+    return json.dumps("Deployed")
 
+if __name__ == "__main__":
+    app.run()
